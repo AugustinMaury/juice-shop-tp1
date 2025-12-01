@@ -34,3 +34,32 @@ jobs:
               with:
                 name: sca-report
                 path: sca-report.json
+
+    sast:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: setup node js
+              uses: actions/setup-node@v4
+              with:
+                node-version: '20'
+
+            - name: install dependencies
+              run: npm install
+
+            - name: Run Snyk Code - sast 
+              uses: snyk/actions/node@master
+              env:
+                SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+              with:
+                command: code test
+                args: --severity-threshold=high --json-file-output=sast-report.json
+              
+            - name: upload report
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                name: sast-report
+                path: sast-report.json
